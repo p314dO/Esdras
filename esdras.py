@@ -48,9 +48,25 @@ def extract_open_ports(scan_file):
 
 # Main function
 def main():
+
     if len(sys.argv) != 3:
         print("Usage: python create_pentest_dir_and_scan.py <name> <IP>")
         sys.exit(1)
+
+    print("")
+    print("")
+    print("   ▄████████    ▄████████ ████████▄     ▄████████    ▄████████    ▄████████      ")
+    print("  ███    ███   ███    ███ ███   ▀███   ███    ███   ███    ███   ███    ███      ")
+    print("  ███    █▀    ███    █▀  ███    ███   ███    ███   ███    ███   ███    █▀       ")
+    print(" ▄███▄▄▄       ███        ███    ███  ▄███▄▄▄▄██▀   ███    ███   ███             ")
+    print("▀▀███▀▀▀     ▀███████████ ███    ███ ▀▀███▀▀▀▀▀   ▀███████████ ▀███████████      ")
+    print("  ███    █▄           ███ ███    ███ ▀███████████   ███    ███          ███      ")
+    print("  ███    ███    ▄█    ███ ███   ▄███   ███    ███   ███    ███    ▄█    ███      ")
+    print("  ██████████  ▄████████▀  ████████▀    ███    ███   ███    █▀   ▄████████▀       ")
+    print("                                       ███    ███                                ")
+    print("                                                                  by p314dO")
+    print("")
+    print("")
 
     pentest_name = sys.argv[1]
     ip_address = sys.argv[2]
@@ -67,16 +83,26 @@ def main():
 
     # Run the initial nmap scan
     initial_scan_file = "initial_scan"
+    print("Starting initial Nmap scan...")
     nmap_command = ["nmap", "-p-", "--open", "--min-rate=1000", "-oG", initial_scan_file, ip_address, "-Pn", "-n"]
-    subprocess.run(nmap_command)
+    with open(os.devnull, 'wb') as null_file:
+        subprocess.run(nmap_command, stdout=null_file, stderr=null_file)
+    print("Initial Nmap scan completed.")
 
     # Extract open ports from the initial scan
     open_ports = extract_open_ports(initial_scan_file)
 
     if open_ports:
         # Execute the second nmap command
-        print("Executing the second nmap command...")
-        nmap_second_result = subprocess.run(["nmap", "-sC", "-sV", f"-p{open_ports}", ip_address, "-Pn"], capture_output=True, text=True)
+        print("Starting second Nmap scan...")
+        nmap_second_result_file = "nmap_second_result.txt"
+        with open(nmap_second_result_file, 'w') as result_file:
+            subprocess.run(["nmap", "-sC", "-sV", f"-p{open_ports}", ip_address, "-Pn"], stdout=result_file, stderr=subprocess.STDOUT)
+        print("Second Nmap scan completed.")
+
+        # Read the result from the file
+        with open(nmap_second_result_file, 'r') as file:
+            nmap_second_result = file.read()
 
         # Generate HTML report
         html_content = f"""
@@ -88,7 +114,7 @@ def main():
             <br>
             <h1 style='text-align:center;'>Esdras Report</h1>
             <div style='display: block; margin-left: auto; width: 80%;'>
-                <pre>{nmap_second_result.stdout}</pre>
+                <pre>{nmap_second_result}</pre>
             </div>
         </body>
         </html>
@@ -107,11 +133,11 @@ def main():
         print("Displaying the result in the browser...")
         subprocess.run(["xdg-open", "scan_result.html"])
 
-        print(f"Second nmap scan completed successfully on ports: {open_ports}")
+        print(f"Second Nmap scan completed successfully on ports: {open_ports}")
     else:
         print("No open ports detected in the initial scan.")
 
-    print(f"Directory structure '{base_path}' created and nmap scans completed successfully.")
+    print(f"Directory structure '{base_path}' created and Nmap scans completed successfully.")
 
 if __name__ == "__main__":
     main()
