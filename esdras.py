@@ -27,8 +27,7 @@ directory_structure = {
         "Scan-Folder": {},
         "Discovered-Information": {
             "New-IPs": {},
-            "Usernames": {},
-            "Passwords": {},
+            "Credentials": {},
             "Source-Code": {}
         }
     }
